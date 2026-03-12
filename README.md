@@ -19,10 +19,7 @@
    - **Socket Port**: Port untuk mendengarkan koneksi (Default: `3006`).
    - **Font Size**: Pilih ukuran font yang sesuai dengan kertas Anda.
 
-> [!TIP]
-> Pengaturan ukuran font dasar (Font A/B) sebaiknya diatur secara lokal melalui **GUI Print Server** ini, bukan melalui logika di VPS. Hal ini untuk memastikan kompatibilitas jenis font dengan kemampuan fisik printer thermal Anda di lokasi. VPS cukup mengirimkan konten teks mentah, dan Print Server yang akan menyesuaikan format font-nya.
-
-> [!IMPORTANT]
+> [!PENTING]
 > Pastikan Port yang Anda gunakan tidak diblokir oleh Firewall agar Server/VPS bisa melakukan koneksi.
 
 ---
@@ -105,10 +102,12 @@ Anda bisa mengirimkan perintah hardware ESC/POS langsung melalui string `content
 - **Tebal (Bold)**: `\x1b\x45\x01`
 - **Garis Bawah**: `\x1b\x2d\x01`
 
+> [!PENTING]
+> Pengaturan ukuran font dasar (Font A/B) sebaiknya diatur secara lokal melalui **GUI Print Server** ini, bukan melalui logika di VPS. Hal ini untuk memastikan kompatibilitas jenis font dengan kemampuan fisik printer thermal Anda di lokasi. VPS cukup mengirimkan konten teks mentah, dan Print Server yang akan menyesuaikan format font-nya.
 ---
 
 ## 🖼️ Cetak Logo
-Disarankan menyimpan logo di memori printer (**NVRAM**) agar cetak lebih cepat dan tidak membebani koneksi internet.
+Jika ingin mencetak logo, simpan logo di memori printer (**NVRAM**).
 
 1. **Upload Logo**: Gunakan tool **"NV Logo Tool"** (biasanya ada di CD Driver atau download dari situsnya) untuk mengunggah logo hitam-putih Anda ke printer. Simpan sebagai logo nomor **1**.
 2. **Panggil Logo dari VPS**: Gunakan kode berikut di dalam payload `content`:
