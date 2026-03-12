@@ -19,7 +19,7 @@
    - **Socket Port**: Port untuk mendengarkan koneksi (Default: `3006`).
    - **Font Size**: Pilih ukuran font yang sesuai dengan kertas Anda.
 
-> [!PENTING]
+> [!IMPORTANT]
 > Pastikan Port yang Anda gunakan tidak diblokir oleh Firewall agar Server/VPS bisa melakukan koneksi.
 
 ---
@@ -102,7 +102,7 @@ Anda bisa mengirimkan perintah hardware ESC/POS langsung melalui string `content
 - **Tebal (Bold)**: `\x1b\x45\x01`
 - **Garis Bawah**: `\x1b\x2d\x01`
 
-> [!PENTING]
+> [!IMPORTANT]
 > Pengaturan ukuran font dasar (Font A/B) sebaiknya diatur secara lokal melalui **GUI Print Server** ini, bukan melalui logika di VPS. Hal ini untuk memastikan kompatibilitas jenis font dengan kemampuan fisik printer thermal Anda di lokasi. VPS cukup mengirimkan konten teks mentah, dan Print Server yang akan menyesuaikan format font-nya.
 ---
 
