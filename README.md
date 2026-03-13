@@ -1,6 +1,6 @@
-# Thermal Print Socket Server 🚀
+# Thermal Socket Server 🚀
 
-**Thermal Print Socket Server** adalah aplikasi Desktop yang berfungsi sebagai jembatan (bridge) antara Server/VPS Anda dengan printer thermal lokal. Aplikasi ini memungkinkan Anda melakukan pencetakan struk secara otomatis dan *silent* (tanpa dialog print) menggunakan protokol **Socket.IO**.
+**Thermal Socket Server** adalah aplikasi Desktop berbasis **Rust + Tauri** yang berfungsi sebagai jembatan (bridge) antara Server/VPS Anda dengan printer thermal lokal. Aplikasi ini memungkinkan Anda melakukan pencetakan struk secara otomatis dan *silent* (tanpa dialog print) menggunakan protokol **Socket.IO**.
 
 ## ✨ Fitur Utama
 - **Silent Printing**: Cetak struk langsung ke printer thermal tanpa perlu interaksi user.
@@ -12,7 +12,7 @@
 ---
 
 ## 🛠️ Instalasi & Persiapan
-1. Download installer dari [GitHub Releases](https://github.com/pondokalgoritma/thermal-print-socket-server-download/releases/latest).
+1. Download installer dari [GitHub Releases](https://github.com/pondokalgoritma/thermal-socket-server/releases/latest).
 2. Jalankan aplikasi pada komputer yang terhubung langsung ke printer thermal.
 3. Buka tab **Settings** untuk mengatur:
    - **Printer Target**: Pilih printer thermal yang aktif.
@@ -22,75 +22,74 @@
 > [!IMPORTANT]
 > Pastikan Port yang Anda gunakan tidak diblokir oleh Firewall agar Server/VPS bisa melakukan koneksi.
 
----
+### 📂 Lokasi File Konfigurasi
+Aplikasi menyimpan pengaturan Anda secara permanen di:
+`%APPDATA%\dev.denox.thermal-socket-server\config.## 📡 Cara Kerja: Browser sebagai Jembatan (Bridge)
 
-## 📡 Integrasi Socket (Server Side)
+Jika aplikasi Anda (misal: Laravel) berada di **VPS/Cloud**, server Anda tidak bisa mengakses `localhost` printer secara langsung. Solusi paling efisien adalah menggunakan browser user sebagai perantara.
 
-Aplikasi ini mendengarkan event socket dengan detail sebagai berikut:
-- **Event Name**: `print_job`
-- **Payload**: `{ "content": "Teks yang ingin dicetak..." }`
-- **Confirmation**: Server akan mengirim balik `print_status` setelah selesai.
+### Alur Kerja:
+1. **Trigger**: User mengklik tombol "Cetak" di aplikasi Cloud.
+2. **Bridge**: Aplikasi membuka halaman/tab khusus (atau iframe) yang berisi data struk.
+3. **Socket**: JavaScript di halaman tersebut menghubungkan browser ke `localhost:3006` milik Thermal Socket Server.
+4. **Print**: Data dikirim, printer mencetak, dan halaman ditutup otomatis.
 
----
-
-### 🐘 Contoh: PHP (Laravel)
-Gunakan library `elephant.io` atau `socket.io-client-php`.
-
-```php
-use ElephantIO\Client;
-
-$url = "http://[IP-KOMPUTER-LOKAL]:3006";
-$client = Client::create($url);
-
-$client->initialize();
-$client->emit('print_job', [
-    'content' => "LAPAK KOPI\n----------\nKopi Hitam ... 5.000\nTotal ........ 5.000\n\nTerima Kasih!"
-]);
-$client->close();
-```
+**Keuntungan**: Tidak perlu melakukan *Port Forwarding* atau pengaturan IP Publik pada router lokal.
 
 ---
 
-### 🟢 Contoh: Node.js
-Gunakan `socket.io-client`.
+## 🚀 Integrasi (Frontend/Client Side)
 
-```javascript
-const io = require("socket.io-client");
-const socket = io("http://[IP-KOMPUTER-LOKAL]:3006");
+Ini adalah cara paling umum digunakan untuk aplikasi berbasis web (Laravel, React, dsb).
 
-socket.on("connect", () => {
-    socket.emit("print_job", {
-        content: "PESANAN #123\n----------------\nItem: Nasi Goreng\n----------------\n"
+### 1. Buat Halaman Pemicu (Contoh: `cetak.blade.php`)
+Buat halaman khusus yang akan dipicu saat proses cetak.
+
+```html
+<!-- Data Struk (Tersembunyi) -->
+<pre id="struk-data" style="display:none;">
+TOKO MAKMUR
+--------------------------
+Kopi Susu ..... Rp 15.000
+--------------------------
+Total ......... Rp 15.000
+</pre>
+
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script>
+    const socket = io("http://localhost:3006");
+    
+    socket.on("connect", () => {
+        const content = document.getElementById('struk-data').innerText;
+        socket.emit("print_job", { content: content });
     });
-});
 
-socket.on("print_status", (data) => {
-    console.log("Hasil Print:", data.message);
-    socket.disconnect();
-});
+    socket.on("print_status", (res) => {
+        if (res.success) {
+            console.log("Cetak Berhasil");
+            window.close(); // Tutup tab otomatis
+        }
+    });
+</script>
 ```
 
----
+### 2. Cara Trigger dari Aplikasi
+Anda bisa memicu cetak dengan membuka jendela baru atau menggunakan **Hidden Iframe** (lebih elegan/silent).
 
-### 🐍 Contoh: Python
-Gunakan `python-socketio`.
+**A. Menggunakan Tab Baru (Simple):**
+```html
+<a href="/cetak/123" target="_blank">Cetak Struk</a>
+```
 
-```python
-import socketio
+**B. Menggunakan Hidden Iframe (Silent Printing):**
+```html
+<!-- Letakkan ini di layout utama -->
+<iframe id="silent-printer" style="display:none;"></iframe>
 
-sio = socketio.Client()
-
-@sio.event
-def connect():
-    sio.emit('print_job', {'content': 'TEST PRINT DARI PYTHON\n'})
-
-@sio.on('print_status')
-def on_status(data):
-    print(f"Status: {data['message']}")
-    sio.disconnect()
-
-sio.connect('http://[IP-KOMPUTER-LOKAL]:3006')
-sio.wait()
+<!-- Tombol Cetak -->
+<button onclick="document.getElementById('silent-printer').src='/cetak/123'">
+    Cetak (Silent)
+</button>
 ```
 
 ---
@@ -103,39 +102,22 @@ Anda bisa mengirimkan perintah hardware ESC/POS langsung melalui string `content
 - **Garis Bawah**: `\x1b\x2d\x01`
 
 > [!IMPORTANT]
-> Pengaturan ukuran font dasar (Font A/B) sebaiknya diatur secara lokal melalui **GUI Print Server** ini, bukan melalui logika di VPS. Hal ini untuk memastikan kompatibilitas jenis font dengan kemampuan fisik printer thermal Anda di lokasi. VPS cukup mengirimkan konten teks mentah, dan Print Server yang akan menyesuaikan format font-nya.
+> **Penting**: Pengaturan ukuran font dasar (Standard/Small) diatur melalui **Settings** di aplikasi Thermal Socket Server. VPS cukup mengirimkan konten teks mentah.
+
 ---
 
-## 🖼️ Cetak Logo
-Jika ingin mencetak logo, simpan logo di memori printer (**NVRAM**).
-
-1. **Upload Logo**: Gunakan tool **"NV Logo Tool"** (biasanya ada di CD Driver atau download dari situsnya) untuk mengunggah logo hitam-putih Anda ke printer. Simpan sebagai logo nomor **1**.
-2. **Panggil Logo dari VPS**: Gunakan kode berikut di dalam payload `content`:
-   - Code: `\x1c\x70\x01\x00`
-   - Rekomendasi (Center): `\x1b\x61\x01\x1c\x70\x01\x00\x1b\x61\x00` (Center logo lalu kembalikan ke rata kiri).
-
-
 ## 🔒 Jaringan & Keamanan
-Agar Print Server dapat diakses oleh VPS atau perangkat lain, lakukan langkah berikut:
+Jika Anda menggunakan metode **Browser Bridge** di atas:
+*   **Tidak perlu** Port Forwarding.
+*   **Tidak perlu** mengizinkan Firewall untuk koneksi Inbound dari Internet.
+*   Cukup pastikan browser dapat mengakses `http://localhost:3006`.
 
-### 1. Izin Firewall Windows (Wajib)
-Secara default Windows memblokir koneksi masuk. Anda harus mengizinkan port aplikasi (Standar: `3006`):
-1.  Buka **Windows Defender Firewall with Advanced Security**.
-2.  Klik **Inbound Rules** -> **New Rule...**
-3.  Pilih **Port** -> Next.
-4.  Pilih **TCP** dan isi **Specific local ports**: `3006`.
-5.  Pilih **Allow the connection** -> Next -> Next.
-6.  Beri nama (misal: `Thermal Socket Server`) dan klik **Finish**.
+Jika Anda ingin server (VPS) menembak **langsung** ke IP komputer tanpa browser:
+1. **Izin Firewall Windows (Wajib)**: Izinkan Port `3006` pada Inbound Rules.
+2. **Port Forwarding**: Arahkan port `3006` di Router ke IP lokal komputer printer.
+3. **Static IP**: Pastikan komputer printer memiliki IP lokal yang tidak berubah.
+ `3006` (IP Lokal komputer printer).
 
-### 2. Gunakan IP Lokal Statis
-Agar alamat Print Server tidak berubah-ubah saat komputer/router restart:
-*   Atur **Static IP** pada Windows (Misal: `192.168.1.100`).
-*   Atau gunakan fitur **DHCP Reservation** di pengaturan Router Anda.
+---
 
-### 3. Akses dari Luar Jaringan (VPS Cloud)
-Jika VPS Anda tidak berada dalam satu jaringan (Wi-Fi/LAN) yang sama dengan printer:
-*   Anda perlu melakukan **Port Forwarding** pada Router Anda.
-*   Arahkan trafik dari Port `3006` (Publik) ke Port `3006` (IP Lokal komputer printer).
-
-
-**Created by Pondok Algoritma**
+**DENOX.DEV**
