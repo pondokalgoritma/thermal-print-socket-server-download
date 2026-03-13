@@ -24,9 +24,9 @@
 
 ### 📂 Lokasi File Konfigurasi
 Aplikasi menyimpan pengaturan Anda secara permanen di:
-`%APPDATA%\dev.denox.thermal-socket-server\config.## 
+`%APPDATA%\dev.denox.thermal-socket-server\config.
 
-###📡 Cara Kerja: Browser sebagai Jembatan (Bridge)
+### 📡 Cara Kerja: Browser sebagai Jembatan (Bridge)
 
 Jika aplikasi Anda (misal: Laravel) berada di **VPS/Cloud**, server Anda tidak bisa mengakses `localhost` printer secara langsung. Solusi paling efisien adalah menggunakan browser user sebagai perantara.
 
