@@ -12,7 +12,7 @@
 ---
 
 ## 🛠️ Instalasi & Persiapan
-1. Download installer dari [GitHub Releases](https://github.com/pondokalgoritma/thermal-socket-server/releases/latest).
+1. Download installer dari [GitHub Releases](https://github.com/pondokalgoritma/thermal-print-socket-server-download/releases/latest).
 2. Jalankan aplikasi pada komputer yang terhubung langsung ke printer thermal.
 3. Buka tab **Settings** untuk mengatur:
    - **Printer Target**: Pilih printer thermal yang aktif.
