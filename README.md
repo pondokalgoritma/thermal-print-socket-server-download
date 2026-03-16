@@ -1,6 +1,6 @@
 # Thermal Socket Server 🚀
 
-**Thermal Socket Server** adalah aplikasi Desktop berbasis **Rust + Tauri** yang berfungsi sebagai jembatan (bridge) antara Server/VPS Anda dengan printer thermal lokal. Aplikasi ini memungkinkan Anda melakukan pencetakan struk secara otomatis dan *silent* (tanpa dialog print) menggunakan protokol **Socket.IO**.
+**Thermal Socket Server** adalah aplikasi Desktop yang berfungsi sebagai jembatan (bridge) antara Server/VPS Anda dengan printer thermal lokal. Aplikasi ini memungkinkan Anda melakukan pencetakan struk secara otomatis dan *silent* (tanpa dialog print) menggunakan protokol **Socket.IO**.
 
 ## ✨ Fitur Utama
 - **Silent Printing**: Cetak struk langsung ke printer thermal tanpa perlu interaksi user.
